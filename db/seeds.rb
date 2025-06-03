@@ -8,7 +8,7 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-Order.delete_all
+Order.delete_all if ENV['CLEAN_ORDERS'] == 'true'
 
 10000.times do
   status = [ 'delivered', 'pending', 'canceled' ].sample

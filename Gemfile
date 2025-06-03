@@ -69,9 +69,6 @@ gem "dotenv"
 gem "faker"
 
 gem "sidekiq", "~> 8.0"
-
 gem "webmock", "~> 3.25"
-
 gem "sidekiq-throttled", "~> 1.5"
-
 gem "redis", "~> 5.4"

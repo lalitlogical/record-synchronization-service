@@ -1,0 +1,88 @@
+services:
+  db:
+    image: postgres:15
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  redis:
+    image: redis
+    container_name: redis
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      
+  web:
+    build: .
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0 -p 3000"
+    volumes:
+      - .:/myapp
+    ports:
+      - "3000:3000"
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: synchronization_service
+    depends_on:
+      - db
+      - redis
+      # - kafka
+  
+  sidekiq:
+    build: .
+    command: bash -c "bundle exec sidekiq"
+    volumes:
+      - .:/myapp
+    environment:
+      RAILS_ENV: development
+      REDIS_URL: redis://redis:6379/0
+      DB_HOST: db
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_DATABASE: synchronization_service
+    depends_on:
+      - db
+      - redis
+      # - kafka
+
+  # TODO: Actual implementation of Kafka 
+  # and it's usages into application
+  # zookeeper:
+  #   image: confluentinc/cp-zookeeper:latest
+  #   environment:
+  #     ZOOKEEPER_CLIENT_PORT: 2181
+  #     ZOOKEEPER_TICK_TIME: 2000
+
+  # kafka:
+  #   image: confluentinc/cp-kafka:latest
+  #   ports:
+  #     - "9092:9092"
+  #   environment:
+  #     KAFKA_BROKER_ID: 1
+  #     KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+  #     KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://host.docker.internal:9092
+  #     KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+  #   depends_on:
+  #     - zookeeper
+
+volumes:
+  db-data:
+
+# Useful Commands
+
+# Create db, run migration and seed
+# docker-compose run web bundle exec rake db:create db:migrate db:seed
+
+# Just run seed
+# docker-compose run web bundle exec rake db:seed
+
+# Open rails console
+# docker-compose run web bundle exec rails c

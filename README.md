@@ -7,12 +7,17 @@ This record Synchronization Service will consist of different components that wi
 3. **Sidekiq:** Background Job processing framework to control the jobs for Order events.
 4. **WebMock:** This library is used to stub external services.
 
-I want to solve the Synchronization problem with External service with this whole setup.
 
-- Created **Synchronization Services** to manage the API calls to the external service with transformed data based on the record life cycle. i.e. `create`, `update`, `delete`.
+### Approach and Design decisions
+
+I want to solve the Synchronization problem with External service with this whole setup. In this approach, I've used the service pattern to define the **Synchronization Services** which is co-ordinating to sync all data changes to external service. I've create Http client to manage htte request handling efficiently. I've used Sidekiq, a well tested library for background jobs processing with controlled way. I've used WebMock to stubbed the API calling to external services.
+
+I've defined the all components in detail as below:
+
+- I've created **Synchronization Services** to manage the API calls to the external service with transformed data based on the record life cycle. i.e. `create`, `update`, `delete`.
   - Transform data before making API call to external service.
   - Please check `app/services/synchronization_service.rb` file for more detail.
-- Created a **Sidekiq** job to manage below stuff:
+- I've created a **Sidekiq** job to manage below stuff:
   - Control the syncing to external services based on `order_id`. So one order processed at a time.
     ```ruby
     # Allow maximum 10 concurrent jobs of this class at a time.
@@ -25,7 +30,7 @@ I want to solve the Synchronization problem with External service with this whol
     ```
   - Jobs will be queued and processed in the timely manner.
   - Please check `app/sidekiq/syncing_job.rb` file for more detail.
-- Created **Http client** with `Faraday` to handle the API calls to the external service.
+- I've created **Http client** with `Faraday` to handle the API calls to the external service.
   - It will handle all types of requests: `get`, `post`, `put`, and `delete`
   - It has set up with **retry mechanism** to retry in case of failures.
   - Please check `app/services/http_client.rb` file for more detail.

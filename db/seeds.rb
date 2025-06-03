@@ -10,7 +10,8 @@
 
 Order.delete_all if ENV['CLEAN_ORDERS'] == 'true'
 
-10000.times do
+orders_count = ENV.fetch('ORDER_COUNT', 10000).to_i
+orders_count.times do
   status = [ 'delivered', 'pending', 'canceled' ].sample
   placed_at = Date.today + rand(-99..100)
   amount = rand(100..9999)

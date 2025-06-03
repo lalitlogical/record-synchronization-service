@@ -8,7 +8,11 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-Order.delete_all if ENV['CLEAN_ORDERS'] == 'true'
+if ENV['CLEAN_ORDERS'] == 'true'
+  orders_count = Order.count
+  Order.delete_all
+  puts "#{orders_count} orders deleted successfully."
+end
 
 orders_count = ENV.fetch('ORDER_COUNT', 10000).to_i
 orders_count.times do
@@ -29,3 +33,5 @@ orders_count.times do
     pincode: Faker::Address.zip_code
   )
 end
+
+puts "#{orders_count} orders created successfully."

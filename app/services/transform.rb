@@ -6,7 +6,7 @@ class Transform
   def self.external_payload(order)
     {
       "status" => order.status,
-      "purchased_date" => order.placed_at.strftime("%d/%m/%Y"),
+      "purchased_date" => order.placed_at ? order.placed_at.strftime("%d/%m/%Y") : "",
       "delivery_date" => order.delivered_at ? order.delivered_at.strftime("%d/%m/%Y") : "",
       "cost" => order.amount + order.tax,
       "address" => order.full_address

@@ -4,18 +4,24 @@ class Order < ApplicationRecord
   after_destroy :destroy_it_on_external_services
 
   def create_it_on_external_services
-    SyncingJob.new.perform(id, "create")
+    SyncingJob.perform_async(id, "create")
   end
 
   def update_it_on_external_services
-    SyncingJob.new.perform(id, "update")
+    SyncingJob.perform_async(id, "update")
   end
 
   def destroy_it_on_external_services
-    SyncingJob.new.perform(id, "destroy")
+    SyncingJob.perform_async(id, "destroy")
   end
 
   def full_address
-    "##{street_address}, #{city}, #{state} #{pincode}, #{country}"
+    add = []
+    add << street_address if street_address.present?
+    add << city if city.present?
+    add << state if state.present?
+    add << pincode if pincode.present?
+    add << country if country.present?
+    add.join(",")
   end
 end

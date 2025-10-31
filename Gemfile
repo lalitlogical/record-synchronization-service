@@ -70,5 +70,5 @@ gem "faker"
 
 gem "sidekiq", "~> 8.0"
 gem "webmock", "~> 3.25"
-gem "sidekiq-throttled", "~> 1.5"
+gem "sidekiq-throttled", "~> 2.0"
 gem "redis", "~> 5.4"
